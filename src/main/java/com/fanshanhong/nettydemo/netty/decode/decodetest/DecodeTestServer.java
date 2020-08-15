@@ -1,5 +1,6 @@
-package com.fanshanhong.nettydemo.netty.groupchat;
+package com.fanshanhong.nettydemo.netty.decode.decodetest;
 
+import com.fanshanhong.nettydemo.netty.groupchat.GroupChatServerHandler;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelInitializer;
@@ -8,17 +9,15 @@ import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
-import io.netty.channel.socket.oio.OioServerSocketChannel;
-import io.netty.handler.codec.string.StringDecoder;
 import io.netty.handler.codec.string.StringEncoder;
 
 /**
- * @Description: 使用Netty 实现简单的群聊功能, 服务端
+ * @Description: DecodeTestServer
  * @Author: fan
  * @Date: 2020-08-05 09:42
  * @Modify:
  */
-public class GroupChatServer {
+public class DecodeTestServer {
 
     public static void main(String[] args) {
 
@@ -35,10 +34,10 @@ public class GroupChatServer {
 
                             ChannelPipeline pipeline = ch.pipeline();
 
-                            pipeline.addLast("1", new StringDecoder());
-                            pipeline.addLast("2", new StringEncoder());
-
-                            pipeline.addLast("3", new GroupChatServerHandler());
+                            pipeline.addLast("1", new Decode1());
+                            pipeline.addLast("2", new Decode2());
+                            pipeline.addLast("3", new StringEncoder());
+                            pipeline.addLast("4", new GroupChatServerHandler());
 
                         }
                     });

@@ -17,7 +17,7 @@ import java.util.Map;
 
 public class GroupChatServerHandler extends ChannelInboundHandlerAdapter {
 
-    static Map<String, Channel> channelMap = new HashMap<>();
+    static Map<String, Channel> channelMap = new HashMap<String, Channel>();
 
     // 也可以用这个ChannelGroup 来保存 channel 对象
     // ChannelGroup channelGroup = new DefaultChannelGroup(GlobalEventExecutor.INSTANCE);
@@ -36,9 +36,9 @@ public class GroupChatServerHandler extends ChannelInboundHandlerAdapter {
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
         System.out.println("收到客户端" + ctx.channel().remoteAddress() + "的消息:" + msg);
-        String message = ctx.channel().remoteAddress() + "说:" + (String) msg;
+        String message = ctx.channel().remoteAddress() + "说:" + msg.toString();
 
-        // 转发
+        // 转发给所有人, 包括自己
         Iterator<String> iterator = channelMap.keySet().iterator();
         while (iterator.hasNext()) {
             String key = iterator.next();
@@ -65,7 +65,7 @@ public class GroupChatServerHandler extends ChannelInboundHandlerAdapter {
 
     @Override
     public void handlerAdded(ChannelHandlerContext ctx) throws Exception {
-        System.out.println("处理器被添加了, 代表客户端" + ctx.channel().remoteAddress() + "加入群聊了" );
+        System.out.println("处理器被添加了, 代表客户端" + ctx.channel().remoteAddress() + "加入群聊了");
         channelMap.put(ctx.channel().remoteAddress().toString(), ctx.channel());
     }
 

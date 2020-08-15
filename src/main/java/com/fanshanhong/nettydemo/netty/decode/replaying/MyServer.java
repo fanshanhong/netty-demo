@@ -1,4 +1,4 @@
-package com.fanshanhong.nettydemo.netty.groupchat;
+package com.fanshanhong.nettydemo.netty.decode.replaying;
 
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.ChannelFuture;
@@ -8,20 +8,15 @@ import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
-import io.netty.channel.socket.oio.OioServerSocketChannel;
-import io.netty.handler.codec.string.StringDecoder;
-import io.netty.handler.codec.string.StringEncoder;
 
 /**
- * @Description: 使用Netty 实现简单的群聊功能, 服务端
+ * @Description:
  * @Author: fan
- * @Date: 2020-08-05 09:42
+ * @Date: 2020-08-06 10:23
  * @Modify:
  */
-public class GroupChatServer {
-
+public class MyServer {
     public static void main(String[] args) {
-
         EventLoopGroup bossGroup = new NioEventLoopGroup(1);
         EventLoopGroup workerGroup = new NioEventLoopGroup();
 
@@ -32,14 +27,10 @@ public class GroupChatServer {
                     .childHandler(new ChannelInitializer<SocketChannel>() {
                         @Override
                         protected void initChannel(SocketChannel ch) throws Exception {
-
                             ChannelPipeline pipeline = ch.pipeline();
-
-                            pipeline.addLast("1", new StringDecoder());
-                            pipeline.addLast("2", new StringEncoder());
-
-                            pipeline.addLast("3", new GroupChatServerHandler());
-
+                            pipeline.addLast(new MyReplayingDecoder());
+                            pipeline.addLast(new FactorialHandler());
+                            pipeline.addLast(new FactorialHandler());
                         }
                     });
 

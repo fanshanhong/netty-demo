@@ -19,7 +19,7 @@ public class ClientSimpleHandler extends ChannelInboundHandlerAdapter {
 
     // 当通道就绪就会触发
     @Override
-    public void channelActive(ChannelHandlerContext ctx) throws Exception {
+    public void channelActive(final ChannelHandlerContext ctx) throws Exception {
         System.out.println("channelActive");
         try {
             new Thread(new Runnable() {

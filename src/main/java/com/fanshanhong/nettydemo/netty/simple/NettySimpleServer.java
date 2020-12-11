@@ -1,7 +1,11 @@
 package com.fanshanhong.nettydemo.netty.simple;
 
+import com.fanshanhong.nettydemo.netty.write.MyOutboundHandler;
+import com.fanshanhong.nettydemo.netty.write.MyOutboundHandler2;
+import io.netty.bootstrap.Bootstrap;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.ChannelFuture;
+import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
@@ -30,7 +34,10 @@ public class NettySimpleServer {
                     .channel(NioServerSocketChannel.class)// 指定 bossGroup 使用 NioServerSocketChannel 来处理连接请求
                     .childHandler(new ChannelInitializer<SocketChannel>() {
                         protected void initChannel(SocketChannel ch) throws Exception {
-                            ch.pipeline().addLast(new ServerSimpleHandler());
+//                            ch.pipeline().addLast(new ServerSimpleHandler());
+                            ch.pipeline().addLast(new MyOutboundHandler());
+                            ch.pipeline().addLast(new ServerSimpleHandler2());
+                            ch.pipeline().addLast(new MyOutboundHandler2()); // 2 是出站的最后
                         }
                     });
 

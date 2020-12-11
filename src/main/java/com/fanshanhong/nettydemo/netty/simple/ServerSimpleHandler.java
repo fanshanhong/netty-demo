@@ -41,7 +41,7 @@ public class ServerSimpleHandler extends ChannelInboundHandlerAdapter {
     // 管道(Pipeline)里有很多Handler(双向链表), 管道说的是业务逻辑处理管道. 类似于责任链模式
     // 通道 其实指的是与 客户端建立的socket连接.
     @Override
-    public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
+    public void channelRead(final ChannelHandlerContext ctx, Object msg) throws Exception {
 
         System.out.println(ctx);
 

@@ -1,5 +1,6 @@
 package com.fanshanhong.nettydemo.netty.groupchat;
 
+import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
@@ -25,6 +26,10 @@ public class GroupChatServerHandler extends ChannelInboundHandlerAdapter {
     @Override
     public void channelActive(ChannelHandlerContext ctx) throws Exception {
         System.out.println("客户端" + ctx.channel().remoteAddress() + "处于活动状态了");
+
+        Bootstrap bootstrap = new Bootstrap();
+        bootstrap.group(ctx.channel().eventLoop());
+        bootstrap.connect();
     }
 
     @Override

@@ -15,7 +15,7 @@ import java.util.Scanner;
  */
 public class GroupChatClientHandler extends ChannelInboundHandlerAdapter {
     @Override
-    public void channelActive(ChannelHandlerContext ctx) throws Exception {
+    public void channelActive(final ChannelHandlerContext ctx) throws Exception {
         try {
             new Thread(new Runnable() {
                 public void run() {

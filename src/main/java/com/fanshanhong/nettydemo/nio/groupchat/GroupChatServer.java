@@ -46,6 +46,7 @@ public class GroupChatServer {
      * 监听有事件连接
      */
     private void listen() {
+        System.out.println("listen thread;"+ Thread.currentThread().getName());
         try {
 
             while (selector.select() > 0) {
@@ -60,7 +61,7 @@ public class GroupChatServer {
 
                     SelectionKey key = iterator.next();
                     if (key.isAcceptable()) {
-
+                        System.out.println("isAcceptable thread;"+ Thread.currentThread().getName());
 
                         ServerSocketChannel serverSocketChannel = (ServerSocketChannel) key.channel();
 
@@ -93,7 +94,7 @@ public class GroupChatServer {
     }
 
     private void handle(SelectionKey key) {
-
+        System.out.println("handle thread;"+ Thread.currentThread().getName());
         SocketChannel socketChannel = (SocketChannel) key.channel();
 
         try {
@@ -184,6 +185,7 @@ public class GroupChatServer {
     }
 
     public static void main(String[] args) {
+        System.out.println("thread;"+ Thread.currentThread().getName());
         GroupChatServer groupChatServer = new GroupChatServer();
         groupChatServer.listen();
     }

@@ -1,4 +1,4 @@
-package com.fanshanhong.nettydemo.netty.util;
+package com.fanshanhong.nettydemo.netty.bytebuf;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.PooledByteBufAllocator;
@@ -32,6 +32,7 @@ public class UnpooledTest {
             ByteBuf byteBuf = Unpooled.wrappedBuffer("哈哈哈".getBytes("UTF-8"));
             System.out.println(byteBuf.toString());//UnpooledHeapByteBuf(ridx: 0, widx: 9, cap: 9/9)
             System.out.println(new String(byteBuf.array()));
+            System.out.println(byteBuf.capacity());
 
             //
             // Creates a new big-endian buffer whose content is a copy of the

@@ -23,24 +23,26 @@ public class BIOServer {
 
         ServerSocket serverSocket = new ServerSocket(6666);
 
-        System.out.println("服务器已经启动, 所在线程为:" + Thread.currentThread().getName());
+        System.out.println("服务器已经启动, 所在线程为:" + Thread.currentThread().getName());// main线程
 
         while (true) {
             System.out.println("监听中, 等待连接...");
+
             // 阻塞监听等待客户端连接
+            // 当accept()方法返回, 表示已经有客户端连接进来
             final Socket socket = serverSocket.accept();
 
             System.out.println("有客户端连接进来");
 
             // 创建一个新的线程, 在这个新的线程中, 与刚刚连接进来的客户端进行通信
-//            new Thread(new Runnable() {
-//                public void run() {
-//                    handle(socket);
-//                }
-//            }).start();
+            // new Thread(new Runnable() {
+            //     public void run() {
+            //         handle(socket);
+            //     }
+            // }).start();
 
 
-            // 使用线程池
+            // 使用线程池处理与每一个客户端的通信
             threadPool.execute(new Runnable() {
                 public void run() {
                     handle(socket);
@@ -50,7 +52,12 @@ public class BIOServer {
     }
 
 
-    static void handle(Socket socket) {
+    /**
+     * 针对客户端的处理程序
+     *
+     * @param socket 与客户端的连接
+     */
+    private static void handle(Socket socket) {
         try {
             byte[] bytes = new byte[1024];
 
@@ -67,7 +74,7 @@ public class BIOServer {
             e.printStackTrace();
         } finally {
             try {
-                System.out.println("出现异常, 连接关闭");
+                System.out.println("连接关闭");
                 socket.close();
             } catch (IOException e) {
                 e.printStackTrace();

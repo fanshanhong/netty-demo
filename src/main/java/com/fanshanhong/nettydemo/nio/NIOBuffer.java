@@ -5,7 +5,7 @@ import java.nio.CharBuffer;
 import java.nio.IntBuffer;
 
 /**
- * @Description:
+ * @Description: NIO Buffer测试
  * @Author: fan
  * @Date: 2020-07-23 15:50
  * @Modify:
@@ -15,7 +15,9 @@ public class NIOBuffer {
     public static void main(String[] args) {
 
         // Buffer
-        // Buffer 类定义了所有缓冲区都具有的4个属性，提供关于其所包含的数据元素信息。
+        // Buffer 类定义了所有缓冲区都具有的4个属性，提供关于其所包含的数据的元数据。
+        // (元数据, metadata, 就是描述数据的数据. 这里数据是 hb[]数组, 那 position limit capacity 都是用来描述 hb[] 的, 因此,他们都是描述真正数据的数据)
+        // 元数据, 可以参考: https://github.com/fanshanhong/note/blob/master/Metadata%E8%AF%B4%E6%98%8E.md
 
         /*
          *     // Invariants: mark <= position <= limit <= capacity
@@ -31,7 +33,7 @@ public class NIOBuffer {
         // CharBuffer 里有 char[] hb;
 
 
-        // 用于存放整形的 Buffer
+        // 用于存放整形的 Buffer, 大小为4, 代表可以存放4个int值
         IntBuffer intBuffer = IntBuffer.allocate(4);
         // allocate之后,  hb数据为: [0,0,0,0], position:0  limit:4  capacity:4
 
@@ -40,7 +42,7 @@ public class NIOBuffer {
          *  *
          *  *       A buffer's capacity is the number of elements it contains.  The
          *  *   capacity of a buffer is never negative and never changes.
-         *  *       buffer的 capacity 属性,表示这个buffer能装多少元素, 也就是容量大小.
+         *  *       buffer的 capacity 属性, 表示这个buffer能装多少元素, 也就是容量大小.
          *  *   capacity 的值永远不会为负数, 也不会改变
          *  *
          *  *
@@ -48,8 +50,7 @@ public class NIOBuffer {
          *  *   not be read or written.  A buffer's limit is never negative and is never
          *  *   greater than its capacity.
          *  *      buffer的 limit 属性, 表示不能被读或者被写的第一个元素的index. limit 永远小于等于 capacity
-         *  *
-         *  * 也就是超过limit的地方不能读写, 但是limit是可以变的, 我们可以直接修改limit
+         *  *   也就是超过limit的地方不能读写, 但是limit是可以变的, 我们可以直接修改limit
          *  *
          *  *      A buffer's position is the index of the next element to be
          *  *   read or written.  A buffer's position is never negative and is never
@@ -71,6 +72,7 @@ public class NIOBuffer {
         // 然后 position = 0; 表示从头开始读
 
         /*
+         *  flip()方法实现如下:
          *  limit = position;
          *  position = 0;
          *  mark = -1;
@@ -79,21 +81,20 @@ public class NIOBuffer {
 
         System.out.println("intBuffer limit:" + intBuffer.limit()); // 3
         // 从Buffer读取数据
+        System.out.println("----第一次从Buffer中读取数据----");
         for (int i = 0; i < intBuffer.limit(); i++) {
             int x = intBuffer.get();// Relative get method, position会每次向后移动
             System.out.println(x);
         }
-
         // 全部读完, 看看下标 position:3  limit:3  capacity:4
 
 
         intBuffer.position(0); // 把position修改到开头,又可以重新读一遍啦
+        System.out.println("----第二次从Buffer中读取数据----");
         while (intBuffer.hasRemaining()) {
             int x = intBuffer.get();// Relative get method, position会每次向后移动
             System.out.println(x);
         }
-
-
         // 第二次全部读完, position:3  limit:3  capacity:4
 
 
@@ -122,11 +123,12 @@ public class NIOBuffer {
         intBuffer.put(777); // put是相对操作, 每次put, position会自增
         // 此时, hb里面数据为   [444,555,666,777], position:4  limit:4  capacity:4
 
-        // 要读就要flip
+        // 想要再次读, 就要flip
         intBuffer.flip();
+        System.out.println("----第三次从Buffer中读取数据----");
         while (intBuffer.hasRemaining()) {
             int x = intBuffer.get();// Relative get method, position会移动
-            System.out.println("第二次写完:" + x);
+            System.out.println(x);
         }
 
 
@@ -136,16 +138,19 @@ public class NIOBuffer {
         // 下面演示一下wrap相关的方法
 
 
-        // 用于存储 Char类型的Buffer
+        // 用于存储 Char类型的Buffer: CharBuffer
+
+        // ---------用 CharBuffer 来包裹 字符数组----------
 
         char[] chars = {'a', 'b', '发', '看'};
 
         CharBuffer wrap = CharBuffer.wrap(chars);
         System.out.println("wrap:" + wrap.toString() + "  position:" + wrap.position() + "  limit:" + wrap.limit() + "  capacity:" + wrap.capacity());
+        // wrap之后, position:0  limit:4  capacity:4
 
-        // 分析下这个wrap方法:
+        // 下面分析下这个wrap方法:
         // 创建了一个 HeapCharBuffer 对象
-        // 并把chars 的内容全部装到  Buffer里面的hb(final char[] hb;)
+        // 并把 chars 的内容全部装到 Buffer里面的hb(final char[] hb;)数组中
         // 然后给 int mark, int pos=offset, int lim=offset+len, int cap  4个变量赋值
         /*
          *     CharBuffer(int mark, int pos, int lim, int cap,   // package-private
@@ -161,7 +166,7 @@ public class NIOBuffer {
         /*
          * public String toString() {
          *         return toString(position(), limit());
-         *     }
+         * }
          *
          * abstract String toString(int start, int end);
          */
@@ -169,25 +174,67 @@ public class NIOBuffer {
         // array() 方法, 是返回了整个 hb
 
 
-        CharBuffer wrap1 = CharBuffer.wrap(chars, 1, 2);// 从 offset 开始, 往后 length 个
-        System.out.println("wrap:" + wrap1.toString() + "  position:" + wrap1.position() + "  limit:" + wrap1.limit() + "  capacity:" + wrap1.capacity());
-        System.out.println(new String(wrap1.array()));
+        /* 认真看一下这个wrap方法的说明:
+         * public static CharBuffer wrap(char[] array,
+         *                          int offset, int length);
+         *
+         * Wraps a char array into a buffer.
+         *
+         * The new buffer will be backed by the given char array;
+         * 这个新的buffer将被填入给定的字符数组
+         * that is, modifications to the buffer will cause the array to be modified
+         * and vice versa.
+         * 修改buffer将导致数组被修改, 反之亦然
+         *
+         * The new buffer's capacity will be array.length, its position will be <tt>offset, its limit
+         * will be offset + length, and its mark will be undefined.
+         * 新的buffer的 capacity=array.length
+         * 新的buffer的 position=offset  limit=offset+length  mark=-1
+         * Its {@link #array backing array} will be the given array, and
+         * its {@link #arrayOffset array offset} will be zero.  </p>
+         * buffer底层的字节数组将用给定的array来赋值, 而且, arrayOffset=0
+         *
+         */
+        CharBuffer wrap1 = CharBuffer.wrap(chars, 1, 2);// 从 offset 开始, 往后 length 个, 区间为 [1,3)
+        System.out.println("wrap1:" + wrap1.toString() + "  position:" + wrap1.position() + "  limit:" + wrap1.limit() + "  capacity:" + wrap1.capacity());
+        // 输出结果:   wrap1:b发  position:1  limit:3  capacity:4
+        // 因为position=1, 并且toString()方法返回的是position到limit之间的内容, 所以buffer.toString是[1, 3)
+        System.out.println("wrap1 array:" + new String(wrap1.array()));
+        // 由于 buffer 底层的字节数组是用给定的 array 来填入, 所以wrap1.array()输出chars的全部内容
 
 
+        // ---------用 CharBuffer 包裹字符串 --------
         CharBuffer wrap2 = CharBuffer.wrap("模式转换");
-        System.out.println("wrap:" + wrap2.toString() + "  position:" + wrap2.position() + "  limit:" + wrap2.limit() + "  capacity:" + wrap2.capacity());
+        System.out.println("wrap2:" + wrap2.toString() + "  position:" + wrap2.position() + "  limit:" + wrap2.limit() + "  capacity:" + wrap2.capacity());
 
-        CharBuffer wrap3 = CharBuffer.wrap("flip方法根本不是什么读写模式转换", 0, 5); // 注意这两个参数是start 和 end, [0, 3)
-        System.out.println("wrap:" + wrap3.toString() + "  position:" + wrap3.position() + "  limit:" + wrap3.limit() + "  capacity:" + wrap3.capacity());
 
-        // 用于存储字节的 Buffer
+        /*
+         * 看一下 public static CharBuffer wrap(CharSequence csq, int start, int end)
+         *
+         * Wraps a character sequence into a buffer.
+         *
+         * The content of the new, read-only buffer will be the content of the
+         * given character sequence.  The buffer's capacity will be
+         * csq.length(), its position will be start, its limit
+         * will be end, and its mark will be undefined.
+         * 新的缓冲区是只读缓冲区, 它的内容是给定的字符序列.
+         * capacity=字符序列的length
+         * position=start
+         * limit=end
+         * mark=-1
+         */
+        CharBuffer wrap3 = CharBuffer.wrap("flip方法根本不是什么读写模式转换", 0, 5); // 注意这两个参数是start 和 end, [0, 5)
+        System.out.println("wrap3:" + wrap3.toString() + "  position:" + wrap3.position() + "  limit:" + wrap3.limit() + "  capacity:" + wrap3.capacity());
+
+
+        // --------用于存储字节的 Buffer----------
         ByteBuffer byteBuffer = ByteBuffer.wrap("你好,中国".getBytes(), 0, 3);
+        // position=0, limit=3, capacity=13 byteBuffer的[0,3)中的内容,其实就是:"你"
         ByteBuffer byteBuffer2 = ByteBuffer.wrap("你好,中国".getBytes());
 
         // ByteBuffer的toString()方法被重写了
         System.out.println(byteBuffer.toString()); // java.nio.HeapByteBuffer[pos=0 lim=3 cap=13]
-        System.out.println(byteBuffer2.toString());// java.nio.HeapByteBuffer[pos=0 lim=13 cap=13]
-        // tip:UTF-8编码, 一个中文占3个字节.
+        System.out.println(byteBuffer2.toString());// java.nio.HeapByteBuffer[pos=0 lim=13 cap=13] tip:UTF-8编码, 一个中文占3个字节.
 
         System.out.println(new String(byteBuffer.array())); // 你好,中国, array()方法是获取整个hb
         System.out.println(new String(byteBuffer2.array()));
@@ -199,9 +246,21 @@ public class NIOBuffer {
         System.out.println(new String(dest));
 
         // byteBuffer.get(dest, 1, 3); 是做了什么呢
-        // 主要就是 从position位置(这个position位置是wrap方法中指定的offset参数. (因为wrap方法中, 将 position = offset 了))开始多次调用get()方法, 把get到的内容丢到dst数组指定的区间里面(这里是 从1开始, 长度是3)
+        // 主要就是 从position位置(这个position位置是wrap方法中指定的offset参数, 这里是0. (因为wrap方法中, 将 position = offset 了))开始多次调用get()方法, 把get到的内容丢到dst数组指定的区间里面(这里是 从1开始, 长度是3)
+        // 调用get()的话, position其实是变化的. 可以验证一下
 
-        /*
+        System.out.println("-----" + byteBuffer.position());//3
+
+        // 如果length=2, 就会乱码了, 因为一个UTF-8编码的中文要占用3个字节. 编解码参考:https://github.com/fanshanhong/note/blob/master/Java/Java%E5%AD%97%E7%AC%A6%E9%9B%86.md
+        // 验证一下, 先把position设置成0
+        byteBuffer.clear(); // position=0; limit=13,cap=13
+        byte[] dest2 = new byte[4];//{0,0,0,0}
+        byteBuffer.get(dest2, 0, 2);// dest:{-28,-67,0,0}
+        System.out.println("-----两个字节输出:" + new String(dest2)); // -28 -67无法组成一个完整的汉字,因此乱码, 后面两个0照常输出空格
+
+
+
+        /*  方法实现如下:
          *  public ByteBuffer get(byte[] dst, int offset, int length) {
          *         checkBounds(offset, length, dst.length);
          *         if (length > remaining())

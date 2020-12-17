@@ -70,6 +70,10 @@ public class NIOServer {
                     // 可以在register之后观察一下selector.keys() 的变化
                     // register之后, keys元素是2个. keys[1] 是 SocketCHannelImpl@634, remote是127.0.0.1:52772, 显然代表客户端Channel
 
+                    ByteBuffer byteBuffer = ByteBuffer.allocate(24);
+                    socketChannel.read(byteBuffer);
+                    System.out.println("1111客户端说:" + new String(byteBuffer.array()));
+
                 } else if (key.isReadable()) { // 客户端发消息过来了, 我们的可以开始读啦.
 
                     SocketChannel channel = (SocketChannel) key.channel();

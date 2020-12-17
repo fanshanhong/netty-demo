@@ -132,7 +132,7 @@ public class NIOBuffer {
         }
 
 
-        // 总结: flip方法根本不是什么读写模式转换, 只是把几个下标的属性值改了改.
+        // 总结: flip方法根本不是什么读写模式转换, 只是把几个下标的属性值改了改, 然后便于使用 put() get()等相对方法读写
 
 
         // 下面演示一下wrap相关的方法
@@ -303,5 +303,51 @@ public class NIOBuffer {
          */
 
         // 可以看到, asReadOnlyBuffer方法是使用原有buffer里的hb及其他一些属性, 又去创建了一个新的只读Buffer.
+
+
+        testPosition();
+    }
+
+
+    private static void testPosition() {
+
+        IntBuffer intBuffer = IntBuffer.allocate(4); // position=0, limit=cap=4;
+
+        // 写
+        intBuffer.put(0);
+        intBuffer.put(1);
+        intBuffer.put(2);
+        intBuffer.put(3); // position=4, limit=cap=4
+
+
+        // 把position的值变一下, 覆盖写
+        intBuffer.position(0);
+        intBuffer.put(6); // put之后, position要自增, 应该是1了
+        System.out.println("覆盖写后, position的值:" + intBuffer.position());
+
+
+        intBuffer.position(0);
+        int i = intBuffer.get();// put之后, position要自增, 应该是1了
+        System.out.println("读到的值:" + i + " , position的值:" + intBuffer.position());
+
+
+        // limit测试
+
+        // limit一直没变, 还是4
+        int limit = intBuffer.limit();
+        System.out.println("limit:" + limit);
+
+        // 我们手动改一下limit
+        intBuffer.limit(1);
+        intBuffer.position(0);
+        // 然后读写, 应该是不能超过limit
+        intBuffer.put(7); // put 之后, position=1
+        //intBuffer.put(8); // 这里, 报错 BufferOverflowException
+
+        intBuffer.limit(1);
+        intBuffer.position(0);
+        intBuffer.get(); // get 之后, position=1
+        intBuffer.get(); // 这里, 报错 BufferUnderflowException
+
     }
 }

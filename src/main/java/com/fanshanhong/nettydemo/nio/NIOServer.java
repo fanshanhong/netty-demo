@@ -2,13 +2,12 @@ package com.fanshanhong.nettydemo.nio;
 
 import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
-import java.nio.CharBuffer;
 import java.nio.channels.*;
 import java.util.Iterator;
 import java.util.Set;
 
 /**
- * @Description:
+ * @Description: NIO 实现的 Server
  * @Author: fan
  * @Date: 2020-07-23 14:42
  * @Modify:
@@ -55,7 +54,7 @@ public class NIOServer {
 
                 // 有客户端来连接
                 if (key.isAcceptable()) { // 表示客户端来连接的事件已经就绪,此时我们调用accept不会阻塞
-                    // 这个if条件好像也能这么写.
+                    // 这个if条件也能这么写.
                     // key.interestOps() == SelectionKey.OP_ACCEPT
 
                     SocketChannel socketChannel = ((ServerSocketChannel) key.channel()).accept();//socketChannel是SocketCHannelImpl@634
@@ -74,7 +73,7 @@ public class NIOServer {
                     socketChannel.read(byteBuffer);
                     System.out.println("1111客户端说:" + new String(byteBuffer.array()));
 
-                } else if (key.isReadable()) { // 客户端发消息过来了, 我们的可以开始读啦.
+                } else if (key.isReadable()) { // 客户端发消息过来了, 我们可以开始读啦.
 
                     SocketChannel channel = (SocketChannel) key.channel();
 

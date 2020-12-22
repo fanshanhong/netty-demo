@@ -3,14 +3,12 @@ package com.fanshanhong.nettydemo.nio;
 import java.io.BufferedReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.io.StringReader;
 import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
 import java.nio.channels.SocketChannel;
-import java.util.Scanner;
 
 /**
- * @Description:
+ * @Description: NIO 实现的 Client
  * @Author: fan
  * @Date: 2020-07-25 23:09
  * @Modify:

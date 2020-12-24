@@ -17,7 +17,7 @@ import java.nio.channels.SocketChannel;
 public class NewServer {
     public static void main(String[] args) throws Exception {
 
-        // 简单期间, 不用selector了
+        // 简单起见, 不用selector了
 
         ServerSocketChannel serverSocketChannel = ServerSocketChannel.open();
 
@@ -61,7 +61,7 @@ public class NewServer {
         socketChannel.configureBlocking(true);
 
         int len = -1;
-        FileChannel fileChannel = new FileOutputStream("aa.png").getChannel();
+        FileChannel fileChannel = new FileOutputStream("aa.rar").getChannel();
         while (true) {
             // read 返回值参考https://blog.csdn.net/cao478208248/article/details/41648359
             len = socketChannel.read(byteBuffer);
@@ -70,6 +70,7 @@ public class NewServer {
             }
 
             byteBuffer.flip();
+            // 这里没有丢弃
             fileChannel.write(byteBuffer);
             byteBuffer.clear();
         }

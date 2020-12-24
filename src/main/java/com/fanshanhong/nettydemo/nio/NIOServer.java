@@ -31,6 +31,7 @@ public class NIOServer {
         // 所有注册的, 都会放到selector 里的 keys 那个集合进行管理.
         // selectedKeys 是发生了事件的集合. 因此是keys的子集.
         serverSocketChannel.register(selector, SelectionKey.OP_ACCEPT);
+        // register 方法中会先生成selectionKey,并放入keys中, 然后返回这个selectionKey. 可以自行查看.
 
         // 可以在register之后观察一下selector.keys() 的变化.此时集合里面有一个元素(SelectionKey), SelectionKey的 channel 是 ServerSocketChannelImpl@521, 监听9983端口,显然就是跟上面ServerSocketChannel对应的SelectionKey
 
@@ -44,10 +45,12 @@ public class NIOServer {
             // 假如, 发生了一个连接事件和一个READ事件, 那么 select返回2, 表示两个通道上有事件发生了. (注意:如果在通道上发生了不关心的事件,也不会通知的. 比如C1我们关注的是READ, 那么如果在C1上发生了不是READ的事件, 是不会通知我们的)
             // 然后selectedKeys 集合里面其实就有两个.
             // 遍历selectedKeys, 根据SelectionKey的事件就知道发生了什么, 并且可以拿到对应的channel进行处理
+
+
             Set<SelectionKey> selectionKeys = selector.selectedKeys();
-            // 当有1个客户端来连接,这个 selector.selectedKey 数量就是1 ,里面原色SelectionKey的channel 是 ServerSocketChannelImpl@521
-            // index=0, interestOps=16.   显然是将keys() 中的那个元素, 也加入到这个Selectionkeys里面了, 表示这个channel上有感兴趣的事件发生了
-            // 当客户端发消息的时候, selectedKeys 里面是1个, SeletionKeyImpl@645, keys里面2个, SeletionKeyImpl@575(channel 是ServerSocketChannelImpl@521), SeletionKeyImpl@645(SocketChannelImpl@634)
+            // 当有1个客户端来连接,这个 selector.selectedKeys 数量就是1 ,里面元素SelectionKey的channel 是 ServerSocketChannelImpl@521,
+            // index=0, interestOps=16.   显然是将 keys() 中的那个ServerSocketChannelImpl@521对应的SelectionKey元素, 也加入到这个Selectionkeys里面了, 表示这个channel上有感兴趣的事件发生了
+            // 当一个客户端发消息的时候, selectedKeys 里面是1个元素: SeletionKeyImpl@645, 表示 这个SelectionKey对应的channel上面有事件发生了; keys集合里面2个元素: SeletionKeyImpl@575(channel 是ServerSocketChannelImpl@521), SeletionKeyImpl@645(SocketChannelImpl@634)
             Iterator<SelectionKey> iterator = selectionKeys.iterator();
             while (iterator.hasNext()) {
                 SelectionKey key = iterator.next();
@@ -57,17 +60,17 @@ public class NIOServer {
                     // 这个if条件也能这么写.
                     // key.interestOps() == SelectionKey.OP_ACCEPT
 
-                    SocketChannel socketChannel = ((ServerSocketChannel) key.channel()).accept();//socketChannel是SocketCHannelImpl@634
+                    SocketChannel socketChannel = ((ServerSocketChannel) key.channel()).accept();//socketChannel是SocketChannelImpl@634
                     socketChannel.configureBlocking(false);
 
                     // 将这个与客户端的通道也注册到selector上, 让它帮我们检测, 有数据的时候, 也通知我们一下
-                    socketChannel.register(selector, SelectionKey.OP_READ);
+                    socketChannel.register(selector, SelectionKey.OP_READ);// register 返回值是: SeletionKeyImpl@645
                     // 给这个channel添加一个attachment(关联对象), 比如我们在这里给它关联了一个buffer, 后续它就能获取到这个buffer开始用了
                     // 个人认为没有必要??
                     // socketChannel.register(selector, SelectionKey.OP_READ, buffer);
 
                     // 可以在register之后观察一下selector.keys() 的变化
-                    // register之后, keys元素是2个. keys[1] 是 SocketCHannelImpl@634, remote是127.0.0.1:52772, 显然代表客户端Channel
+                    // register之后, keys元素是2个. keys[0]是与ServerSocketChannel对应的SelectionKey, keys[1] 是 SeletionKeyImpl@645 , 它的channel是 SocketChannelImpl@634, remote是127.0.0.1:52772, 显然代表客户端Channel
 
                     ByteBuffer byteBuffer = ByteBuffer.allocate(24);
                     socketChannel.read(byteBuffer);
@@ -102,3 +105,4 @@ public class NIOServer {
         }
     }
 }
+

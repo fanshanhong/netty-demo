@@ -34,7 +34,7 @@ public class OldClient {
         socket1.connect(new InetSocketAddress("127.0.0.1", 8899));
 
 
-        String filename = "/Users/shanhongfan/Downloads/XJ190331122-樊山红-徐诗玲.rar";
+        String filename = "/Users/shanhongfan/Downloads/X.rar";
 
 
         FileInputStream fileInputStream = new FileInputStream(filename);

@@ -15,7 +15,7 @@ public class NewClient {
     public static void main(String[] args) throws Exception {
 
         // 零拷贝客户端
-        String filename = "/Volumes/Mechanical/F/code/相关信息/医惠企业信息/医务在线应用市场材料/图标/Icon-App-216x216@1x.png";
+        String filename = "/Users/shanhongfan/Downloads/X.rar";
 
         // 建立连接
         SocketChannel socketChannel = SocketChannel.open();
